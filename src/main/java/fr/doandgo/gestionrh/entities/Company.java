@@ -26,4 +26,13 @@ public class Company extends AbstractBaseEntity{
     @OneToMany
     private List<Job> jobs;
 
+    public Company(String name, String url) {
+        this.name = name;
+        this.url = url;
+    }
+    public Company(Integer id, String name, String url) {
+        super(id);
+        this.name = name;
+        this.url = url;
+    }
 }

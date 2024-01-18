@@ -1,8 +1,6 @@
 package fr.doandgo.gestionrh.ihm;
 
-import fr.doandgo.gestionrh.controller.CompanyController;
 import fr.doandgo.gestionrh.controller.JobController;
-import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.entities.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,13 +16,16 @@ public class StartInterface {
 
 
     @Autowired
-    private  JobController jobController;
+    private JobController jobController;
 
     @Autowired
     CompanyMenu companyMenu;
 
     @Autowired
     JobsMenu jobsMenu;
+
+    @Autowired
+    EmployeeMenu employeeMenu;
 
     /**
      * Méthode principale pour démarrer l'interface utilisateur.
@@ -45,49 +46,25 @@ public class StartInterface {
                         displayMainMenu();
                     case 1:
                         jobsMenu.JobsMenu(scanner);
-                        displayJobsMenu();
-                        String chosenJobMenuItem =  scanner.nextLine();
-                        choice = Integer.parseInt(chosenJobMenuItem);
-                            switch (choice){
-                                case 1:
-                                    List<Job> jobs = jobController.getAll();
-                                    for(Job job : jobs){
-                                        System.out.println("Id: " + job.getId() + ", name: " + job.getName());
-                                    }
-                                    System.out.println("TOTO 1");
-                                    break;
-                                case 2:
-
-                                    System.out.println("TOTO 2");
-                                    break;
-                            }
                         break;
                     case 2:
-                        displayEmployeeMenu();
+                        employeeMenu.EmployeeMenu(scanner);
                         break;
                     case 3:
                         companyMenu.CompanyMenu(scanner);
-                        /*
-                        displayCompanyMenu();
-                        String chosenCompanyMenuItem = scanner.nextLine();
-                        choice = Integer.parseInt(chosenCompanyMenuItem);
-                        companySwitch(choice);
-
-                         */
                         break;
                 }
-            }
-            catch(Exception exception) {
+            } catch (Exception exception) {
                 System.out.println(exception.getMessage());
             }
-        } while (choice != 99) ;
+        } while (choice != 99);
         scanner.close();
     }
 
     /**
      * Affiche le menu principal de l'application.
      */
-    public  void displayMainMenu(){
+    public void displayMainMenu() {
         System.out.println("________________________________________________________________________________________");
         System.out.println("________________________________________________________________________________________");
         System.out.println("");
@@ -111,54 +88,6 @@ public class StartInterface {
         System.out.println("");
         System.out.print("Choix n° ");
     }
-
-    private  void displayJobsMenu() {
-        System.out.println("________________________________________________________________________________________");
-        System.out.println("     _   ___   ___  ___    _____________________________________________________________");
-        System.out.println("  _ | | / _ \\ | _ )/ __|");
-        System.out.println(" | || || (_) || _ \\__ \\                                  ******* Fiches de poste *******");
-        System.out.println("  \\__/  \\___/ |___/|___/");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("1. Lister les offres");
-        System.out.println("2. Créer une fiche de poste");
-        System.out.println("0. Retour");
-        System.out.println("99. Quitter");
-        System.out.println("");
-        System.out.print("Choix n° ");
-    }
-
-    private  void displayEmployeeMenu() {
-        System.out.println("________________________________________________________________________________________");
-        System.out.println("  ___  __  __  ___  _     ___ __   __ ___  ___  ___   __________________________________");
-        System.out.println(" | __||  \\/  || _ \\| |   / _ \\\\ \\ / /|_ _|| __|/ __|");
-        System.out.println(" | _| | |\\/| ||  _/| |__| (_) |\\ V /  | | | _| \\__ \\            ******* Salariés *******");
-        System.out.println(" |___||_|  |_||_|  |____|\\___/  |_|  |___||___||___/");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("1. Lister les salariés");
-        System.out.println("2. Ajouter un salarié");
-        System.out.println("0. Retour");
-        System.out.println("99. Quitter");
-        System.out.println("");
-        System.out.print("Choix n° ");
-    }
-
-    private  void jobSwitch(Integer choice){
-        switch (choice){
-            case 1:
-                List<Job> jobs = jobController.getAll();
-                for(Job job : jobs){
-                    System.out.println("Id: " + job.getId() + ", name: " + job.getName());
-                }
-                break;
-            case 2:
-
-                break;
-        }
-    }
-
-
 
 
 

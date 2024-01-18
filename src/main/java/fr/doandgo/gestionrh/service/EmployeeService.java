@@ -7,13 +7,19 @@ import fr.doandgo.gestionrh.entities.Contract;
 import fr.doandgo.gestionrh.entities.Employee;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
 import fr.doandgo.gestionrh.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class EmployeeService extends EmployeeController {
+
+    @Autowired
     private ContractService contractService;
+    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Override
@@ -31,7 +37,6 @@ public class EmployeeService extends EmployeeController {
         }
     }
 
-    @Override
     @Transactional
     public void create(EmployeeDto employeeDto) {
         if (employeeDto.contractDto() == null) {

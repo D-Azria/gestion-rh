@@ -5,9 +5,11 @@ import fr.doandgo.gestionrh.dto.ContractDto;
 import fr.doandgo.gestionrh.entities.Contract;
 import fr.doandgo.gestionrh.entities.Employee;
 import fr.doandgo.gestionrh.repository.ContractRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ContractService extends ContractController {
 
     private ContractRepository contractRepository;
