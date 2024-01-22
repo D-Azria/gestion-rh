@@ -10,5 +10,6 @@ import java.util.List;
 public abstract class JobController extends AbstractFacadeController<Job, JobDto> {
 
     public abstract List<Job> getAllJobsByCompanyId(Integer companyId);
+    public abstract List<Job> getAllJobsWithoutContractByCompanyId(Integer companyId);
 
 }

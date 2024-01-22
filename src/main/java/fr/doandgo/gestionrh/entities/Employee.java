@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +33,11 @@ public class Employee extends AbstractBaseEntity{
     private List<Contract> contracts;
 
     public Employee(String firstname, String lastname, Date birthDate, List<Diplomas> diplomas) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.birthDate = birthDate;
+        this.diplomas = diplomas;
+        this.contracts = new ArrayList<>();
     }
 
     /*

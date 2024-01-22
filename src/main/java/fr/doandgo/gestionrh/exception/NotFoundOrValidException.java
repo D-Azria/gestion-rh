@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class NotFoundOrValidException extends RuntimeException {
-    private MessageDto messageDto;
+    private final MessageDto messageDto;
 
     public NotFoundOrValidException(MessageDto messageDto) {
         this.messageDto = messageDto;

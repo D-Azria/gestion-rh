@@ -59,7 +59,7 @@ public class JobsMenu {
             case 3:
                 System.out.println("--  Liste des fiches de poste  --");
                 for (Job j : jobs) {
-                    System.out.println("Id: " + j.getId() + ", name: " + j.getName());
+                    System.out.println("Id: " + j.getId() + ", name: " + j.getName() );
                 }
                 System.out.print("Id de la fiche de poste à modifier :");
                 //TODO : gestion des erreurs

@@ -47,6 +47,12 @@ public class JobService extends JobController {
         return jobs;
     }
 
+    @Override
+    public List<Job> getAllJobsWithoutContractByCompanyId(Integer companyId) {
+        List<Job> jobs = jobRepository.findByCompanyIdAndContractsIsEmpty(companyId);
+        return jobs;
+    }
+
     public Job getById(Integer jobId) {
         Optional<Job> job = jobRepository.findById(jobId);
         if (job.isEmpty()) {

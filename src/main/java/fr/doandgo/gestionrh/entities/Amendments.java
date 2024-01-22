@@ -8,19 +8,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Amendments extends AbstractBaseEntity {
-
-    @NotNull
-    public Date date;
-
-    public String urlDoc;
+public class Amendments extends AbstractContract {
 
     @ManyToOne
     @NotNull

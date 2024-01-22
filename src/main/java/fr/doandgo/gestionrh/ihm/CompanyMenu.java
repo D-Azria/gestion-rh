@@ -50,12 +50,14 @@ public class CompanyMenu {
         List<Company> companies = companyController.getAll();
         switch (choice) {
             case 1:
+                // List all companies
                 System.out.println("--  Liste des entreprises  --");
                 for (Company company : companies) {
                     System.out.println("Id: " + company.getId() + ", name: " + company.getName());
                 }
                 break;
             case 2:
+                // Create a company
                 System.out.println("Créer une entreprise :");
                 //TODO : gestion des erreurs
                 System.out.print("Nom :");
@@ -66,6 +68,7 @@ public class CompanyMenu {
                 companyController.create(companyDto);
                 break;
             case 3:
+                // Update a company
                 System.out.println("--  Liste des entreprises  --");
 
                 for (Company c : companies) {

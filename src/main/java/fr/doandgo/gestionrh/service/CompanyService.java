@@ -6,6 +6,7 @@ import fr.doandgo.gestionrh.dto.MessageDto;
 import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
 import fr.doandgo.gestionrh.repository.CompanyRepository;
+import fr.doandgo.gestionrh.serviceImpl.CompanyServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +15,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CompanyService extends CompanyController {
+public  class CompanyService extends CompanyController {
 
     @Autowired
     private CompanyRepository companyRepository;
 
+     @Autowired
+     private CompanyServiceImpl companyServiceImp;
+
     public List<Company> getAll() {
-        return companyRepository.findAll();
+        return companyServiceImp.getAll();
     }
 
     public Company getById(Integer id) {
-        Optional<Company> company = companyRepository.findById(id);
+        Optional<Company> company = companyServiceImp.getById(id);
         if (company.isEmpty()) {
             throw new NotFoundOrValidException(new MessageDto("Company not found"));
         } else {

@@ -10,4 +10,7 @@ import java.util.List;
 public interface JobRepository extends JpaRepository<Job, Integer> {
 
     List<Job> findAllByCompanyId(Integer id);
+
+    List<Job> findByCompanyIdAndContractsIsEmpty(Integer id);
+
 }

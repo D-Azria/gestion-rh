@@ -2,6 +2,7 @@ package fr.doandgo.gestionrh.entities;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class Company extends AbstractBaseEntity{
 
     private String url;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Job> jobs;
 
     public Company(String name, String url) {
