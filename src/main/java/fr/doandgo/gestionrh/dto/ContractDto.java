@@ -11,7 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
-public record ContractDto(@NotNull String title,
+public record ContractDto(Integer id,
+                          @NotNull String title,
                           @NotNull Date signatureDate,
                           @NotNull Date startDate,
                           Date endDate,
@@ -21,6 +22,7 @@ public record ContractDto(@NotNull String title,
                           TerminationReason terminationReason,
                           @NotNull WorkingConditions workingConditions,
                           Integer employeeId,
+                          Employee employee,
                           @NotNull Job job,
                           List<Amendments> amendments) {
 }

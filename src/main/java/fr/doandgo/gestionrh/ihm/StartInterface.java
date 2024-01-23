@@ -1,11 +1,9 @@
 package fr.doandgo.gestionrh.ihm;
 
-import fr.doandgo.gestionrh.controller.JobController;
-import fr.doandgo.gestionrh.entities.Job;
+import fr.doandgo.gestionrh.utils.Stylized3LText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -13,10 +11,6 @@ import java.util.Scanner;
  */
 @Component
 public class StartInterface {
-
-
-    @Autowired
-    private JobController jobController;
 
     @Autowired
     CompanyMenu companyMenu;
@@ -27,13 +21,18 @@ public class StartInterface {
     @Autowired
     EmployeeMenu employeeMenu;
 
+    @Autowired
+    ContractMenu contractMenu;
+
+    @Autowired
+    Stylized3LText stylized3LText;
+
     /**
      * Méthode principale pour démarrer l'interface utilisateur.
      */
     public void startInterface() {
         Scanner scanner = new Scanner(System.in);
-
-
+        mainDesign();
         int choice = 0;
         do {
             try {
@@ -45,13 +44,16 @@ public class StartInterface {
                     case 0:
                         displayMainMenu();
                     case 1:
-                        jobsMenu.JobsMenu(scanner);
+                        jobsMenu.jobsMenu(scanner);
                         break;
                     case 2:
-                        employeeMenu.EmployeeMenu(scanner);
+                        employeeMenu.employeeMenu(scanner);
                         break;
                     case 3:
-                        companyMenu.CompanyMenu(scanner);
+                        companyMenu.companyMenu(scanner);
+                        break;
+                    case 4:
+                        contractMenu.contractMenu(scanner);
                         break;
                 }
             } catch (Exception exception) {
@@ -59,12 +61,26 @@ public class StartInterface {
             }
         } while (choice != 99);
         scanner.close();
+        stylized3LText.end();
     }
 
     /**
      * Affiche le menu principal de l'application.
      */
     public void displayMainMenu() {
+        System.out.println("");
+        stylized3LText.menu();
+        System.out.println("");
+        System.out.println("1. Fiches de poste");
+        System.out.println("2. Salariés");
+        System.out.println("3. Sociétés");
+        System.out.println("4. Contracts");
+        System.out.println("99. Quitter");
+        System.out.println("");
+        System.out.print("Choix n° ");
+    }
+
+    private void mainDesign() {
         System.out.println("________________________________________________________________________________________");
         System.out.println("________________________________________________________________________________________");
         System.out.println("");
@@ -76,19 +92,8 @@ public class StartInterface {
         System.out.println(" | |__| | | |____   ____) |    | |     _| |_  | |__| | | |\\  |         | | \\ \\  | |  | |");
         System.out.println("  \\_____| |______| |_____/     |_|    |_____|  \\____/  |_| \\_|         |_|  \\_\\ |_|  |_|");
         System.out.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\                                                           //////////////");
-        System.out.println(" >>>>>>>>>>>>>>----[          Gestion: Ressources Humaines          ]----<<<<<<<<<<<<<< ");
+        System.out.println(" >>>>>>>>>>>>>>----[          Gestion Ressources Humaines          ]----<<<<<<<<<<<<<< ");
         System.out.println("//////////////                                                           \\\\\\\\\\\\\\\\\\\\\\\\\\\\");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("Menu :");
-        System.out.println("1. Fiches de poste");
-        System.out.println("2. Salariés");
-        System.out.println("3. Sociétés");
-        System.out.println("99. Quitter");
-        System.out.println("");
-        System.out.print("Choix n° ");
     }
-
-
 
 }

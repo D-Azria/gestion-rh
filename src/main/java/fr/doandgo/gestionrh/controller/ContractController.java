@@ -10,4 +10,7 @@ import java.util.List;
 public abstract class ContractController extends AbstractFacadeController<Contract, ContractDto>{
 
     public abstract List<Contract> getAllContractsByCompanyId(Integer companyId);
+    public abstract List<Contract> getAllContractsByEmployeeId(Integer employeeId);
+
+
 }

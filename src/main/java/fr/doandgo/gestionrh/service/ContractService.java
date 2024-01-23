@@ -20,10 +20,11 @@ public interface ContractService  {
 
      Contract createFirstContract(ContractDto contractDto, Employee employee);
 
-    public void deleteById(Integer id);
+    void deleteById(Integer id);
 
+    void update(ContractDto contractDto) ;
 
-    public void update(ContractDto contractDto) ;
+    Contract dtoToEntity(ContractDto contractDto);
 
-
+    ContractDto entityToDto(Contract contract);
 }

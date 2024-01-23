@@ -40,6 +40,15 @@ public class Employee extends AbstractBaseEntity{
         this.contracts = new ArrayList<>();
     }
 
+    public Employee(Integer id, String firstname, String lastname, Date birthDate, List<Diplomas> diplomas, List<Contract> contracts) {
+        super(id);
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.birthDate = birthDate;
+        this.diplomas = diplomas;
+        this.contracts = contracts;
+    }
+
     /*
     @ManyToOne
     @NotNull

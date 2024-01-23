@@ -23,5 +23,7 @@ public interface EmployeeService  {
 
    void update(EmployeeDto employeeDto) ;
 
+   Employee dtoToEntity(EmployeeDto employeeDto);
 
+   EmployeeDto entityToDto(Employee employee);
 }
