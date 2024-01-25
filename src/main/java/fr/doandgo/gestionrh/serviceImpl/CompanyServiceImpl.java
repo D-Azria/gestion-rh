@@ -1,30 +1,36 @@
 package fr.doandgo.gestionrh.serviceImpl;
 
-import fr.doandgo.gestionrh.controller.CompanyController;
 import fr.doandgo.gestionrh.dto.CompanyDto;
 import fr.doandgo.gestionrh.dto.MessageDto;
 import fr.doandgo.gestionrh.entities.Company;
+import fr.doandgo.gestionrh.entities.Job;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
 import fr.doandgo.gestionrh.repository.CompanyRepository;
 import fr.doandgo.gestionrh.service.CompanyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CompanyServiceImpl  extends CompanyController implements CompanyService {
+@Lazy
+public class CompanyServiceImpl  implements CompanyService {
 
-    @Autowired
-    private CompanyRepository companyRepository;
+    private final CompanyRepository companyRepository;
 
-    public List<Company> getAll() {
-        return companyRepository.findAll();
+    public List<CompanyDto> getAll() {
+        return companyRepository.findAll().stream().map(this::entityToDto).toList();
     }
 
-    public Company getById(Integer id) {
+    public CompanyDto getById(Integer id) {
+        return entityToDto(getCompanyById(id));
+    }
+
+
+    public Company getCompanyById(Integer id) {
         Optional<Company> company = companyRepository.findById(id);
         if(company.isEmpty()){
             throw new NotFoundOrValidException(new MessageDto("Company not found"));
@@ -40,7 +46,7 @@ public class CompanyServiceImpl  extends CompanyController implements CompanySer
 
     @Transactional
     public void update(CompanyDto companyDto) {
-        Company companyToUpdate = getById(companyDto.id());
+        Company companyToUpdate = getCompanyById(companyDto.id());
         if (!companyDto.name().isEmpty()) {
             companyToUpdate.setName(companyDto.name());
         }
@@ -65,7 +71,8 @@ public class CompanyServiceImpl  extends CompanyController implements CompanySer
             return new Company(
                     companyDto.id(),
                     companyDto.name(),
-                    companyDto.url()
+                    companyDto.url(),
+                    new ArrayList<>()
             );
         }
     }
@@ -74,7 +81,12 @@ public class CompanyServiceImpl  extends CompanyController implements CompanySer
         return new CompanyDto(
                 company.getId(),
                 company.getName(),
-                company.getUrl()
+                company.getUrl(),
+                company.getJobs().stream().map(Job::getId).toList()
         );
+    }
+
+    public CompanyServiceImpl(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
     }
 }

@@ -5,25 +5,20 @@ import fr.doandgo.gestionrh.dto.CompanyDto;
 import fr.doandgo.gestionrh.dto.MessageDto;
 import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
+import fr.doandgo.gestionrh.utils.IHMUtilsGet;
 import fr.doandgo.gestionrh.utils.Stylized3LText;
 import fr.doandgo.gestionrh.utils.Stylized4LText;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 @Component
 public class CompanyMenu {
 
-    @Autowired
-    private CompanyController companyController;
-    @Autowired
-    private Stylized3LText stylized3LText;
-    @Autowired
-    private Stylized4LText stylized4LText;
+    private final CompanyController companyController;
+    private final IHMUtilsGet ihmUtilsGet;
+    private final Stylized3LText stylized3LText;
+    private final Stylized4LText stylized4LText;
 
     public void companyMenu(Scanner scanner) {
         displayCompanyMenu();
@@ -53,55 +48,43 @@ public class CompanyMenu {
         }
     }
 
-    private List<Company> lisCompanies() {
-        List<Company> companies = companyController.getAll();
-        // List all companies
-        System.out.println("--  Liste des entreprises  --");
-        for (Company company : companies) {
-            System.out.println("Id: " + company.getId() + ", name: " + company.getName());
+    private List<CompanyDto> lisCompanies() {
+        List<CompanyDto> companies = companyController.getAll();
+        for (CompanyDto company : companies) {
+            System.out.println("Id: " + company.id() + ", name: " + company.name());
         }
         return companies;
     }
 
     private void createCompany(Scanner scanner) {
-        // Create a company
-        System.out.println("Créer une entreprise :");
-        //TODO : gestion des erreurs
         System.out.print("Nom :");
         String companyName = scanner.nextLine();
         System.out.print("URL :");
         String companyURL = scanner.nextLine();
-        CompanyDto companyDto = new CompanyDto(0, companyName, companyURL);
+        CompanyDto companyDto = new CompanyDto(0, companyName, companyURL, null);
         companyController.create(companyDto);
     }
 
     private void updateCompany(Scanner scanner) {
-        List<Company> companies = lisCompanies();
-        System.out.print("Id de l'entreprise à modifier :");
-        //TODO : gestion des erreurs
-        String companyToUpdate = scanner.nextLine();
-        Integer companyIdToUpdate = Integer.parseInt(companyToUpdate);
-        Optional<Company> selectedCompany = companies.stream().filter(comp -> Objects.equals(comp.getId(), companyIdToUpdate)).findFirst();
+        List<CompanyDto> companies = lisCompanies();
+
+        Integer companyIdToUpdate = Integer.parseInt(ihmUtilsGet.getUserInput(scanner, "Id de l'entreprise à modifier :"));
+        Optional<CompanyDto> selectedCompany = companies.stream().filter(comp -> Objects.equals(comp.id(), companyIdToUpdate)).findFirst();
         if (selectedCompany.isEmpty()) {
             throw new NotFoundOrValidException(new MessageDto("Company not found"));
         } else {
-            System.out.println("Ancien nom : " + selectedCompany.get().getName());
-            System.out.print("Nouveau nom :");
-            String updatedCompanyName = scanner.nextLine();
-            System.out.println("Ancienne URL : " + selectedCompany.get().getUrl());
-            System.out.print("Nouvelle URL :");
-            String updatedCompanyURL = scanner.nextLine();
-            CompanyDto updatedCompanyDto = new CompanyDto(selectedCompany.get().getId(), updatedCompanyName, updatedCompanyURL);
+            System.out.println("Ancien nom : " + selectedCompany.get().name());
+            String updatedCompanyName = ihmUtilsGet.getUserInput(scanner, "Nouveau nom :");
+            System.out.println("Ancienne URL : " + selectedCompany.get().url());
+            String updatedCompanyURL = ihmUtilsGet.getUserInput(scanner,"Nouvelle URL :");
+            CompanyDto updatedCompanyDto = new CompanyDto(selectedCompany.get().id(), updatedCompanyName, updatedCompanyURL, null);
             companyController.update(updatedCompanyDto);
         }
     }
 
     private void deleteCompany(Scanner scanner) {
         lisCompanies();
-        System.out.print("Id de l'entreprise à supprimer :");
-        //TODO : gestion des erreurs
-        String company = scanner.nextLine();
-        Integer companyId = Integer.parseInt(company);
+        Integer companyId = Integer.parseInt(ihmUtilsGet.getUserInput(scanner, "Id de l'entreprise à supprimer :"));
         companyController.deleteById(companyId);
     }
 
@@ -113,10 +96,16 @@ public class CompanyMenu {
         System.out.println("2. Créer une entreprise");
         System.out.println("3. Modifier une entreprise");
         System.out.println("4. Supprimer une entreprise");
-        System.out.println("0. Retour");
-        System.out.println("99. Quitter");
+        System.out.println("");
+        System.out.println("Autres touches : retour au menu principal");
         System.out.println("");
         System.out.print("Choix n° ");
     }
 
+    public CompanyMenu(CompanyController companyController, IHMUtilsGet ihmUtilsGet, Stylized3LText stylized3LText, Stylized4LText stylized4LText) {
+        this.companyController = companyController;
+        this.ihmUtilsGet = ihmUtilsGet;
+        this.stylized3LText = stylized3LText;
+        this.stylized4LText = stylized4LText;
+    }
 }

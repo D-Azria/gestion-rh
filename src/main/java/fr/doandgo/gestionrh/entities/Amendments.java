@@ -1,6 +1,7 @@
 package fr.doandgo.gestionrh.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class Amendments extends AbstractContract {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
 }

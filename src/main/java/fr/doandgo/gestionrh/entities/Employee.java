@@ -29,7 +29,7 @@ public class Employee extends AbstractBaseEntity{
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Diplomas> diplomas;
 
-    @OneToMany
+    @OneToMany(mappedBy = "employee")
     private List<Contract> contracts;
 
     public Employee(String firstname, String lastname, Date birthDate, List<Diplomas> diplomas) {

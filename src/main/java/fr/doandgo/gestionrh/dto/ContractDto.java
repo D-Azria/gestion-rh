@@ -22,7 +22,7 @@ public record ContractDto(Integer id,
                           TerminationReason terminationReason,
                           @NotNull WorkingConditions workingConditions,
                           Integer employeeId,
-                          Employee employee,
-                          @NotNull Job job,
-                          List<Amendments> amendments) {
+                          Integer jobId
+                          //,List<Amendments> amendments
+                          ) {
 }

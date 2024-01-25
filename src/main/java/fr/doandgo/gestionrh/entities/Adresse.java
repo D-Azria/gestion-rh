@@ -1,6 +1,7 @@
 package fr.doandgo.gestionrh.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class Adresse extends AbstractBaseEntity {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "city_id")
     private City city;
 
 }

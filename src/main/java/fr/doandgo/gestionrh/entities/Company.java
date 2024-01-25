@@ -24,16 +24,17 @@ public class Company extends AbstractBaseEntity{
 
     private String url;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "company")
     private List<Job> jobs;
 
     public Company(String name, String url) {
         this.name = name;
         this.url = url;
     }
-    public Company(Integer id, String name, String url) {
+    public Company(Integer id, String name, String url, List<Job> jobs) {
         super(id);
         this.name = name;
         this.url = url;
+        this.jobs = jobs;
     }
 }

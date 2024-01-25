@@ -1,10 +1,8 @@
 package fr.doandgo.gestionrh.serviceImpl;
 
-import fr.doandgo.gestionrh.controller.EmployeeController;
-import fr.doandgo.gestionrh.dto.CompanyDto;
+import fr.doandgo.gestionrh.dto.ContractDto;
 import fr.doandgo.gestionrh.dto.EmployeeDto;
 import fr.doandgo.gestionrh.dto.MessageDto;
-import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.entities.Contract;
 import fr.doandgo.gestionrh.entities.Employee;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
@@ -19,19 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
-public class EmployeeServiceImpl extends EmployeeController implements EmployeeService {
+public class EmployeeServiceImpl implements EmployeeService {
 
     private final ContractService contractService;
-
     private final EmployeeRepository employeeRepository;
 
     @Override
-    public List<Employee> getAll() {
-        return employeeRepository.findAll();
+    public List<EmployeeDto> getAll() {
+        return employeeRepository.findAll().stream().map(this::entityToDto).toList();
     }
 
     @Override
-    public Employee getById(Integer id) {
+    public EmployeeDto getById(Integer id) {
+        return entityToDto(getEmployeeById(id));
+    }
+    public Employee getEmployeeById(Integer id) {
         Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
             throw new NotFoundOrValidException(new MessageDto("Employee with id:" + id + " not found!"));
@@ -40,12 +40,13 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
         }
     }
 
-    public List<Employee> getAllEmployeesByCompanyId(Integer companyId) {
-        List<Contract> contractsOfCompany = contractService.getAllContractsByCompanyId(companyId);
+
+    public List<EmployeeDto> getAllEmployeesByCompanyId(Integer companyId) {
+        List<ContractDto> contractsOfCompany = contractService.getAllContractsByCompanyId(companyId);
         Set<Integer> employeesId = new HashSet<>();
-        for (Contract c : contractsOfCompany) {
-            System.out.println(c.getTitle());
-            employeesId.add(c.getEmployee().getId());
+        for (ContractDto c : contractsOfCompany) {
+            System.out.println(c.title());
+            employeesId.add(c.employeeId());
         }
         List<Employee> employees = new ArrayList<>();
         for (Integer id : employeesId) {
@@ -56,7 +57,7 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
                 employees.add(employee.get());
             }
         }
-        return employees;
+        return employees.stream().map(this::entityToDto).toList();
     }
 
     @Transactional
@@ -78,7 +79,7 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
 
     @Override
     public void update(EmployeeDto employeeDto) {
-        Employee employeeToUpdate = getById(employeeDto.id());
+        Employee employeeToUpdate = dtoToEntity(getById(employeeDto.id()));
 
         if(employeeToUpdate != null){
             if(employeeDto.firstname() != null && !employeeDto.firstname().isEmpty()){
@@ -90,10 +91,12 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
             if(employeeDto.birthDate() != null){
                 employeeToUpdate.setBirthDate(employeeDto.birthDate());
             }
-            if(employeeDto.contracts() != null && !employeeDto.contracts().isEmpty()){
-                employeeToUpdate.setContracts(employeeDto.contracts());
-            } else if (employeeDto.contractDto() != null) {
-                employeeToUpdate.getContracts().add(contractService.dtoToEntity(employeeDto.contractDto()));
+            if(employeeDto.contractIds() != null && !employeeDto.contractIds().isEmpty()){
+                List<Contract> contracts = employeeDto.contractIds().stream()
+                        .map(contractService::getContractById)
+                        .toList();
+
+                employeeToUpdate.getContracts().addAll(contracts);
             }
         }
     }
@@ -107,6 +110,10 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
 
     @Override
     public Employee dtoToEntity(EmployeeDto employeeDto) {
+        List<Contract> contracts = employeeDto.contractIds().stream()
+                .map(contractService::getContractById)
+                .toList();
+
         if (employeeDto.id() == null || employeeDto.id() == 0) {
             return new Employee(
                     employeeDto.firstname(),
@@ -121,20 +128,24 @@ public class EmployeeServiceImpl extends EmployeeController implements EmployeeS
                     employeeDto.lastname(),
                     employeeDto.birthDate(),
                     employeeDto.diplomas(),
-                    employeeDto.contracts()
+                    contracts
             );
         }
     }
 
     @Override
     public EmployeeDto entityToDto(Employee employee) {
+        List<Integer> contractIds = employee.getContracts().stream()
+                .map(Contract::getId)
+                .toList();
+
         return new EmployeeDto(
                 employee.getId(),
                 employee.getFirstname(),
                 employee.getLastname(),
                 employee.getBirthDate(),
                 employee.getDiplomas(),
-                employee.getContracts(),
+                contractIds,
                 null
         );
     }

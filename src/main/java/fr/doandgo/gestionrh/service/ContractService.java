@@ -10,11 +10,15 @@ import java.util.List;
 @Service
 public interface ContractService  {
 
-     List<Contract> getAll();
+     List<ContractDto> getAll();
 
-     Contract getById(Integer id) ;
+     ContractDto getById(Integer id) ;
 
-     List<Contract> getAllContractsByCompanyId(Integer companyId);
+     List<ContractDto> getAllContractsByCompanyId(Integer companyId);
+
+     List<ContractDto> getAllContractsByEmployeeId(Integer employeeId);
+
+    List<ContractDto> getALlEndingContractsAtPlannedEnd();
 
      void create(ContractDto contractDto) ;
 
@@ -27,4 +31,6 @@ public interface ContractService  {
     Contract dtoToEntity(ContractDto contractDto);
 
     ContractDto entityToDto(Contract contract);
+
+    Contract getContractById(Integer id);
 }

@@ -1,6 +1,5 @@
 package fr.doandgo.gestionrh.serviceImpl;
 
-import fr.doandgo.gestionrh.controller.JobController;
 import fr.doandgo.gestionrh.dto.JobDto;
 import fr.doandgo.gestionrh.dto.MessageDto;
 import fr.doandgo.gestionrh.entities.Company;
@@ -9,37 +8,39 @@ import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
 import fr.doandgo.gestionrh.repository.JobRepository;
 import fr.doandgo.gestionrh.service.CompanyService;
 import fr.doandgo.gestionrh.service.JobService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class JobServiceImpl extends JobController implements JobService {
+@Lazy
+public class JobServiceImpl implements JobService {
 
-    @Autowired
-    private JobRepository jobRepository;
+    private final JobRepository jobRepository;
 
-    @Autowired
-    private CompanyService companyService;
+    private final CompanyService companyService;
 
-    public List<Job> getAll() {
-        return jobRepository.findAll();
+    public List<JobDto> getAll() {
+        return jobRepository.findAll().stream().map(this::jobEntityToDto).toList();
     }
 
-    public List<Job> getAllJobsByCompanyId(Integer companyId) {
-        List<Job> jobs = jobRepository.findAllByCompanyId(companyId);
-        return jobs;
+    public List<JobDto> getAllJobsByCompanyId(Integer companyId) {
+        return jobRepository.findAllByCompanyId(companyId).stream().map(this::jobEntityToDto).toList();
     }
 
-    public List<Job> getAllJobsWithoutContractByCompanyId(Integer companyId) {
-        List<Job> jobs = jobRepository.findByCompanyIdAndContractsIsEmpty(companyId);
-        return jobs;
+    public List<JobDto> getAllJobsWithoutContractByCompanyId(Integer companyId) {
+        return jobRepository.findByCompanyIdAndContractsIsEmpty(companyId).stream().map(this::jobEntityToDto).toList();
     }
 
-    public Job getById(Integer jobId) {
+    public JobDto getById(Integer jobId) {
+        return jobEntityToDto(getJobEntityById(jobId));
+    }
+
+    public Job getJobEntityById(Integer jobId){
         Optional<Job> job = jobRepository.findById(jobId);
         if (job.isEmpty()) {
             throw new NotFoundOrValidException(new MessageDto("Job not found"));
@@ -52,7 +53,7 @@ public class JobServiceImpl extends JobController implements JobService {
     public void create(JobDto jobDto) {
         Job newJob = jobDtoToEntity(jobDto);
         if (jobDto.companyId() != 0) {
-            Company company = companyService.getById(jobDto.companyId());
+            Company company = companyService.dtoToEntity(companyService.getById(jobDto.companyId()));
             if (company != null) {
                 company.getJobs().add(newJob);
                 newJob.setCompany(company);
@@ -63,9 +64,10 @@ public class JobServiceImpl extends JobController implements JobService {
 
     @Transactional
     public void update(JobDto jobDto) {
-        Job jobToUpdate = getById(jobDto.id());
+        Job jobToUpdate = getJobEntityById(jobDto.id());
 
         if (jobToUpdate != null) {
+
             if (jobDto.name() != null && !jobDto.name().isEmpty()) {
                 jobToUpdate.setName(jobDto.name());
             }
@@ -76,11 +78,16 @@ public class JobServiceImpl extends JobController implements JobService {
                 jobToUpdate.setCategory(jobDto.category());
             }
             if (jobDto.companyId() != 0) {
-                Company company = companyService.getById(jobDto.companyId());
+                Company company = companyService.dtoToEntity(companyService.getById(jobDto.companyId()));
                 if (company != null) {
                     company.getJobs().add(jobToUpdate);
                     jobToUpdate.setCompany(company);
                 }
+            }
+            if (jobDto.managerId() != 0){
+                Job manager = getJobEntityById(jobDto.managerId());
+                manager.addManagedJob(jobToUpdate);
+                jobToUpdate.setManager(manager);
             }
             jobRepository.save(jobToUpdate);
         }
@@ -97,10 +104,13 @@ public class JobServiceImpl extends JobController implements JobService {
                 jobDto.name(),
                 jobDto.service(),
                 jobDto.category(),
-                companyService.getById(
-                        jobDto.companyId()),
+                companyService.dtoToEntity(companyService.getById(
+                        jobDto.companyId())),
                 null,
-                null);
+                (jobDto.jobsManagedIds() != null) ? jobDto.jobsManagedIds().stream()
+                        .map(this::getJobEntityById)
+                        .toList() : new ArrayList<>(),
+                (jobDto.managerId() != null) ? jobDtoToEntity(getById(jobDto.managerId())) : null);
     }
 
     public JobDto jobEntityToDto(Job job) {
@@ -109,7 +119,16 @@ public class JobServiceImpl extends JobController implements JobService {
                 job.getName(),
                 job.getService(),
                 job.getCategory(),
-                job.getCompany().getId()
+                job.getCompany().getId(),
+                (job.getJobsManaged() != null) ? job.getJobsManaged().stream()
+                        .map(Job::getId)
+                        .toList() : new ArrayList<>(),
+                (job.getManager() != null) ? job.getManager().getId() : null
         );
+    }
+
+    public JobServiceImpl(JobRepository jobRepository, CompanyService companyService) {
+        this.jobRepository = jobRepository;
+        this.companyService = companyService;
     }
 }

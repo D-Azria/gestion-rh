@@ -10,9 +10,9 @@ import java.util.List;
 @Service
 public interface CompanyService {
 
-     List<Company> getAll();
+     List<CompanyDto> getAll();
 
-    Company getById(Integer id);
+    CompanyDto getById(Integer id);
 
     @Transactional
     void create(CompanyDto companyDto);

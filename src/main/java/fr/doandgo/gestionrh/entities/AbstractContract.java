@@ -4,6 +4,7 @@ import fr.doandgo.gestionrh.enums.ContractTypes;
 import fr.doandgo.gestionrh.enums.TerminationReason;
 import fr.doandgo.gestionrh.enums.WorkingConditions;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
@@ -40,11 +41,5 @@ public abstract class AbstractContract extends AbstractBaseEntity{
     @NotNull
     private WorkingConditions workingConditions;
 
-    @ManyToOne
-    @NotNull
-    private Employee employee;
 
-    @ManyToOne
-    @NotNull
-    private Job job;
 }

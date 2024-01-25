@@ -3,9 +3,7 @@ package fr.doandgo.gestionrh.ihm;
 import fr.doandgo.gestionrh.controller.CompanyController;
 import fr.doandgo.gestionrh.controller.EmployeeController;
 import fr.doandgo.gestionrh.controller.JobController;
-import fr.doandgo.gestionrh.dto.ContractDto;
-import fr.doandgo.gestionrh.dto.EmployeeDto;
-import fr.doandgo.gestionrh.dto.MessageDto;
+import fr.doandgo.gestionrh.dto.*;
 import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.entities.Employee;
 import fr.doandgo.gestionrh.entities.Job;
@@ -14,28 +12,19 @@ import fr.doandgo.gestionrh.utils.IHMUtilsGet;
 import fr.doandgo.gestionrh.utils.IHMUtilsSet;
 import fr.doandgo.gestionrh.utils.Stylized3LText;
 import fr.doandgo.gestionrh.utils.Stylized4LText;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
 public class EmployeeMenu {
-    @Autowired
-    private EmployeeController employeeController;
-    @Autowired
-    private CompanyController companyController;
-    @Autowired
-    private JobController jobController;
-    @Autowired
-    private IHMUtilsGet ihmUtilsGet;
-    @Autowired
-    private IHMUtilsSet ihmUtilsSet;
-    @Autowired
-    private Stylized3LText stylized3LText;
-    @Autowired
-    private Stylized4LText stylized4LText;
-
+    private final EmployeeController employeeController;
+    private final CompanyController companyController;
+    private final JobController jobController;
+    private final IHMUtilsGet ihmUtilsGet;
+    private final IHMUtilsSet ihmUtilsSet;
+    private final Stylized3LText stylized3LText;
+    private final Stylized4LText stylized4LText;
 
     public void employeeMenu(Scanner scanner) {
         displayEmployeeMenu();
@@ -69,40 +58,39 @@ public class EmployeeMenu {
         }
     }
 
-    private List<Employee> listEmployees(){
-        List<Employee> employees = employeeController.getAll();
-        System.out.println("--  Liste des salariés  --");
-        for (Employee e : employees) {
-            System.out.println("Id: " + e.getId() + ", firstname: " + e.getFirstname() + ", lastname: " + e.getLastname());
+    private List<EmployeeDto> listEmployees(){
+        List<EmployeeDto> employees = employeeController.getAll();
+        for (EmployeeDto e : employees) {
+            System.out.println("Id: " + e.id() + ", firstname: " + e.firstname() + ", lastname: " + e.lastname());
         }
         return employees;
     }
 
-    private List<Employee> listEmployeesOfCompany(Scanner scanner){
-        Company selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
-        List<Employee> companyEmployees = employeeController.getAllEmployeesByCompanyId(selectedCompany.getId());
-        for (Employee e : companyEmployees) {
-            System.out.println("Id: " + e.getId() + ", firstname: " + e.getFirstname() + ", lastname: " + e.getLastname());
+    private List<EmployeeDto> listEmployeesOfCompany(Scanner scanner){
+        CompanyDto selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
+        List<EmployeeDto> companyEmployees = employeeController.getAllEmployeesByCompanyId(selectedCompany.id());
+        for (EmployeeDto e : companyEmployees) {
+            System.out.println("Id: " + e.id() + ", firstname: " + e.firstname() + ", lastname: " + e.lastname());
         }
         return companyEmployees;
     }
 
     private void createEmployee(Scanner scanner){
-        Company company = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
-        List<Job> jobsOfCompany = jobController.getAllJobsWithoutContractByCompanyId(company.getId());
+        CompanyDto company = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
+        List<JobDto> jobsOfCompany = jobController.getAllJobsWithoutContractByCompanyId(company.id());
         ContractDto contractDto = ihmUtilsSet.createContractDto(scanner,company, jobsOfCompany, null);
         EmployeeDto employeeDto = ihmUtilsSet.createEmployeeDto(scanner, contractDto);
         employeeController.create(employeeDto);
     }
 
     private void updateEmployee(Scanner scanner){
-        List<Employee> employees = listEmployees();
+        List<EmployeeDto> employees = listEmployees();
         System.out.println("--  Sélection du salarié  --");
-        for (Employee e : employees) {
-            System.out.println("Id: " + e.getId() + ", firstname: " + e.getFirstname() + ", lastname: " + e.getLastname());
+        for (EmployeeDto e : employees) {
+            System.out.println("Id: " + e.id() + ", firstname: " + e.firstname() + ", lastname: " + e.lastname());
         }
         Integer employeeId = Integer.parseInt(ihmUtilsGet.getUserInput(scanner, "Modifier le salarié n° : "));
-        Optional<Employee> optionalEmployee =  employees.stream().filter(emp -> Objects.equals(emp.getId(), employeeId)).findFirst();
+        Optional<EmployeeDto> optionalEmployee =  employees.stream().filter(emp -> Objects.equals(emp.id(), employeeId)).findFirst();
         if(optionalEmployee.isEmpty()){
             throw new NotFoundOrValidException(new MessageDto("Employee not found"));
         }else {
@@ -112,17 +100,17 @@ public class EmployeeMenu {
     }
 
     public void deleteEmployee(Scanner scanner){
-        List<Employee> employees = listEmployees();
+        List<EmployeeDto> employees = listEmployees();
         System.out.println("--  Sélection du salarié  --");
-        for (Employee e : employees) {
-            System.out.println("Id: " + e.getId() + ", firstname: " + e.getFirstname() + ", lastname: " + e.getLastname());
+        for (EmployeeDto e : employees) {
+            System.out.println("Id: " + e.id() + ", firstname: " + e.firstname() + ", lastname: " + e.lastname());
         }
         Integer employeeId = Integer.parseInt(ihmUtilsGet.getUserInput(scanner, "Supprimer le salarié n° : "));
-        Optional<Employee> optionalEmployee =  employees.stream().filter(emp -> Objects.equals(emp.getId(), employeeId)).findFirst();
+        Optional<EmployeeDto> optionalEmployee =  employees.stream().filter(emp -> Objects.equals(emp.id(), employeeId)).findFirst();
         if(optionalEmployee.isEmpty()){
             throw new NotFoundOrValidException(new MessageDto("Employee not found"));
         }else {
-            employeeController.deleteById(optionalEmployee.get().getId());
+            employeeController.deleteById(optionalEmployee.get().id());
         }
     }
 
@@ -135,10 +123,19 @@ public class EmployeeMenu {
         System.out.println("3. Ajouter un salarié");
         System.out.println("4. Modifier un salarié");
         System.out.println("5. Supprimer un salarié");
-        System.out.println("0. Retour");
-        System.out.println("99. Quitter");
+        System.out.println("");
+        System.out.println("Autres touches : retour au menu principal");
         System.out.println("");
         System.out.print("Choix n° ");
     }
 
+    public EmployeeMenu(EmployeeController employeeController, CompanyController companyController, JobController jobController, IHMUtilsGet ihmUtilsGet, IHMUtilsSet ihmUtilsSet, Stylized3LText stylized3LText, Stylized4LText stylized4LText) {
+        this.employeeController = employeeController;
+        this.companyController = companyController;
+        this.jobController = jobController;
+        this.ihmUtilsGet = ihmUtilsGet;
+        this.ihmUtilsSet = ihmUtilsSet;
+        this.stylized3LText = stylized3LText;
+        this.stylized4LText = stylized4LText;
+    }
 }

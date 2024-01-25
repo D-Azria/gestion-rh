@@ -1,7 +1,10 @@
 package fr.doandgo.gestionrh.ihm;
 
+import fr.doandgo.gestionrh.authentication.AuthenticationController;
+import fr.doandgo.gestionrh.dto.UserDto;
+import fr.doandgo.gestionrh.utils.IHMUtilsGet;
 import fr.doandgo.gestionrh.utils.Stylized3LText;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
@@ -12,20 +15,16 @@ import java.util.Scanner;
 @Component
 public class StartInterface {
 
-    @Autowired
-    CompanyMenu companyMenu;
+    boolean logged = false;
 
-    @Autowired
-    JobsMenu jobsMenu;
-
-    @Autowired
-    EmployeeMenu employeeMenu;
-
-    @Autowired
-    ContractMenu contractMenu;
-
-    @Autowired
-    Stylized3LText stylized3LText;
+    private final AuthenticationController authenticationController;
+    private final UserMenu userMenu;
+    private final CompanyMenu companyMenu;
+    private final JobsMenu jobsMenu;
+    private final EmployeeMenu employeeMenu;
+    private final ContractMenu contractMenu;
+    private final Stylized3LText stylized3LText;
+    private final IHMUtilsGet ihmUtilsGet;
 
     /**
      * Méthode principale pour démarrer l'interface utilisateur.
@@ -34,6 +33,21 @@ public class StartInterface {
         Scanner scanner = new Scanner(System.in);
         mainDesign();
         int choice = 0;
+        do {
+            startMenu();
+            String menuItemChosen = scanner.nextLine();
+            choice = Integer.parseInt(menuItemChosen);
+            switch (choice){
+                case 1:
+                    loginMenu(scanner);
+                    break;
+                case 2:
+                    userMenu.createUser(scanner);
+                    break;
+            }
+
+        } while (!logged);
+
         do {
             try {
                 displayMainMenu();
@@ -55,6 +69,9 @@ public class StartInterface {
                     case 4:
                         contractMenu.contractMenu(scanner);
                         break;
+                    case 5:
+                        userMenu.userMenu(scanner);
+                        break;
                 }
             } catch (Exception exception) {
                 System.out.println(exception.getMessage());
@@ -62,6 +79,23 @@ public class StartInterface {
         } while (choice != 99);
         scanner.close();
         stylized3LText.end();
+    }
+
+    public void startMenu(){
+        System.out.println("");
+        System.out.println("1. Se connecter");
+        System.out.println("2. Créer un compte");
+        System.out.println("");
+        System.out.print("Choix n° ");
+    }
+
+    public void loginMenu(Scanner scanner){
+        System.out.println("");
+        stylized3LText.login();
+        System.out.println("");
+        UserDto userToLogin = new UserDto(null, null, null, null,         ihmUtilsGet.getUserInput(scanner,"Email : "), ihmUtilsGet.getUserInput(scanner,"Password : "), null);
+        ResponseEntity<?> response = authenticationController.login(userToLogin);
+
     }
 
     /**
@@ -75,6 +109,8 @@ public class StartInterface {
         System.out.println("2. Salariés");
         System.out.println("3. Sociétés");
         System.out.println("4. Contracts");
+        System.out.println("");
+        System.out.println("5. Utilisateurs");
         System.out.println("99. Quitter");
         System.out.println("");
         System.out.print("Choix n° ");
@@ -96,4 +132,14 @@ public class StartInterface {
         System.out.println("//////////////                                                           \\\\\\\\\\\\\\\\\\\\\\\\\\\\");
     }
 
+    public StartInterface(AuthenticationController authenticationController, UserMenu userMenu, CompanyMenu companyMenu, JobsMenu jobsMenu, EmployeeMenu employeeMenu, ContractMenu contractMenu, Stylized3LText stylized3LText, IHMUtilsGet ihmUtilsGet) {
+        this.authenticationController = authenticationController;
+        this.userMenu = userMenu;
+        this.companyMenu = companyMenu;
+        this.jobsMenu = jobsMenu;
+        this.employeeMenu = employeeMenu;
+        this.contractMenu = contractMenu;
+        this.stylized3LText = stylized3LText;
+        this.ihmUtilsGet = ihmUtilsGet;
+    }
 }

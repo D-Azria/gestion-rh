@@ -10,11 +10,11 @@ import java.util.List;
 @Service
 public interface EmployeeService  {
 
-   List<Employee> getAll();
+   List<EmployeeDto> getAll();
 
-   Employee getById(Integer id) ;
+   EmployeeDto getById(Integer id) ;
 
-   List<Employee> getAllEmployeesByCompanyId(Integer companyId);
+   List<EmployeeDto> getAllEmployeesByCompanyId(Integer companyId);
 
    @Transactional
    void create(EmployeeDto employeeDto);

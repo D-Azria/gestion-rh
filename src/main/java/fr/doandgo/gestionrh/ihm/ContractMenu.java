@@ -4,14 +4,15 @@ import fr.doandgo.gestionrh.controller.CompanyController;
 import fr.doandgo.gestionrh.controller.ContractController;
 import fr.doandgo.gestionrh.controller.EmployeeController;
 import fr.doandgo.gestionrh.controller.JobController;
+import fr.doandgo.gestionrh.dto.CompanyDto;
 import fr.doandgo.gestionrh.dto.ContractDto;
+import fr.doandgo.gestionrh.dto.EmployeeDto;
 import fr.doandgo.gestionrh.dto.MessageDto;
 import fr.doandgo.gestionrh.entities.Company;
 import fr.doandgo.gestionrh.entities.Contract;
 import fr.doandgo.gestionrh.entities.Employee;
 import fr.doandgo.gestionrh.exception.NotFoundOrValidException;
 import fr.doandgo.gestionrh.utils.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,35 +21,20 @@ import java.util.Scanner;
 @Component
 public class ContractMenu {
 
-    @Autowired
-    private ContractController contractController;
-    @Autowired
-    private CompanyController companyController;
-    @Autowired
-    private JobController jobController;
-    @Autowired
-    private EmployeeController employeeController;
-
-    @Autowired
-    private IHMUtilsGet ihmUtilsGet;
-
-    @Autowired
-    private IHMUtilsSet ihmUtilsSet;
-
-    @Autowired
-    private DateUtils dateUtils;
-
-    @Autowired
-    private Stylized3LText stylized3LText;
-    @Autowired
-    private Stylized4LText stylized4LText;
+    private final ContractController contractController;
+    private final CompanyController companyController;
+    private final JobController jobController;
+    private final EmployeeController employeeController;
+    private final IHMUtilsGet ihmUtilsGet;
+    private final IHMUtilsSet ihmUtilsSet;
+    private final Stylized3LText stylized3LText;
+    private final Stylized4LText stylized4LText;
 
     public void contractMenu(Scanner scanner) {
         displayContractMenu();
         String chosenContractMenuItem = scanner.nextLine();
         Integer choice = Integer.parseInt(chosenContractMenuItem);
         contractMainSwitch(choice, scanner);
-
     }
 
     private void contractMainSwitch(Integer choice, Scanner scanner) {
@@ -72,56 +58,68 @@ public class ContractMenu {
         }
     }
 
-    private List<Contract> listContracts(Scanner scanner){
-        List<Contract> contracts = null;
+    private List<ContractDto> listContracts(Scanner scanner){
+        List<ContractDto> contracts = null;
         String prompt = "";
         Class<?> awaitedType = selectContractByCompanyOrEmployee(scanner, "Lister les contrats par :");
         if(awaitedType.equals(Company.class)){
-                       Company selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
-            prompt = "l'entreprise " + selectedCompany.getName();
-            contracts = contractController.getAllContractsByCompanyId(selectedCompany.getId());
+                       CompanyDto selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
+            prompt = "l'entreprise " + selectedCompany.name();
+            contracts = contractController.getAllContractsByCompanyId(selectedCompany.id());
         } else if(awaitedType.equals(Employee.class)){
-            Employee selectedEmployee = ihmUtilsGet.getSelectedEmployee(scanner, employeeController.getAll());
-            prompt = "du salarié " + selectedEmployee.getFirstname() + " " + selectedEmployee.getLastname();
-            contracts = contractController.getAllContractsByEmployeeId(selectedEmployee.getId());
+            EmployeeDto selectedEmployee = ihmUtilsGet.getSelectedEmployee(scanner, employeeController.getAll());
+            prompt = "du salarié " + selectedEmployee.firstname() + " " + selectedEmployee.lastname();
+            contracts = contractController.getAllContractsByEmployeeId(selectedEmployee.id());
         }
         if (contracts == null || contracts.isEmpty()){
             throw new NotFoundOrValidException(new MessageDto("No contracts to display"));
         } else {
             System.out.println("");
             System.out.println("Liste des contrats " + prompt + " :");
-            for (Contract contract : contracts) {
-                System.out.println("- Id: " + contract.getId() + ", title: " + contract.getTitle());
+            for (ContractDto contract : contracts) {
+                System.out.println("- Id: " + contract.id() + ", title: " + contract.title());
             }
             return contracts;
         }
-}
+    }
 
     private void createContract(Scanner scanner){
-        System.out.println("Créer un contrat");
-        Company selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
-        Employee selectedEmployee = ihmUtilsGet.getSelectedEmployee(scanner,employeeController.getAll());
-        ContractDto contractDto = ihmUtilsSet.createContractDto(scanner, selectedCompany, jobController.getAllJobsWithoutContractByCompanyId(selectedCompany.getId()), selectedEmployee);
-        contractController.create(contractDto);
+        CompanyDto selectedCompany = ihmUtilsGet.getSelectedCompany(scanner, companyController.getAll());
+        EmployeeDto selectedEmployee = ihmUtilsGet.getSelectedEmployee(scanner,employeeController.getAll());
+        if(selectedCompany != null
+                && selectedCompany.id() != 0
+                && selectedEmployee != null
+                && selectedEmployee.id() != 0){
+            ContractDto contractDto = ihmUtilsSet.createContractDto(scanner, selectedCompany, jobController.getAllJobsWithoutContractByCompanyId(selectedCompany.id()), selectedEmployee.id());
+            contractController.create(contractDto);
+        } else {
+            System.out.println("L'entreprise et le salarié doivent être valide !");
+            if (selectedEmployee == null || selectedEmployee.id() == 0) {
+                System.out.println("L'employé n'est pas valide.");
+            }
+            if (selectedCompany == null || selectedCompany.id() == 0){
+                System.out.println("L'entreprise n'est pas valide");
+            }
+        }
     }
 
     private void updateContract(Scanner scanner){
-        List<Contract> contracts= listContracts(scanner);
-        for (Contract contract : contracts) {
-            System.out.println("Id: " + contract.getId() + ", title: " + contract.getTitle());
+        List<ContractDto> contracts= listContracts(scanner);
+        for (ContractDto contract : contracts) {
+            System.out.println("Id: " + contract.id() + ", title: " + contract.title());
         }
-        Contract selectedContract = ihmUtilsGet.getSelectedContract(scanner, contracts);
+        ContractDto selectedContract = ihmUtilsGet.getSelectedContract(scanner, contracts);
         ContractDto updatedContractDto = ihmUtilsSet.updateFieldsContractDto(scanner, selectedContract);
         contractController.update(updatedContractDto);
     }
 
     private void deleteContract(Scanner scanner){
-        List<Contract> contracts= listContracts(scanner);
-        for (Contract contract : contracts) {
-            System.out.println("Id: " + contract.getId() + ", title: " + contract.getTitle());
+        List<ContractDto> contracts= listContracts(scanner);
+        for (ContractDto contract : contracts) {
+            System.out.println("Id: " + contract.id() + ", title: " + contract.title());
         }
-        Contract selectedContract = ihmUtilsGet.getSelectedContract(scanner, contracts);
-        contractController.deleteById(selectedContract.getId());
+        ContractDto selectedContract = ihmUtilsGet.getSelectedContract(scanner, contracts);
+        contractController.deleteById(selectedContract.id());
     }
 
     private Class<?> selectContractByCompanyOrEmployee(Scanner scanner, String prompt) {
@@ -144,9 +142,20 @@ public class ContractMenu {
         System.out.println("2. Créer un contrat");
         System.out.println("3. Modifier un contrat");
         System.out.println("4. Supprimer un contrat");
-        System.out.println("0. Retour");
-        System.out.println("99. Quitter");
+        System.out.println("");
+        System.out.println("Autres touches : retour au menu principal");
         System.out.println("");
         System.out.print("Choix n° ");
+    }
+
+    public ContractMenu(ContractController contractController, CompanyController companyController, JobController jobController, EmployeeController employeeController, IHMUtilsGet ihmUtilsGet, IHMUtilsSet ihmUtilsSet, Stylized3LText stylized3LText, Stylized4LText stylized4LText) {
+        this.contractController = contractController;
+        this.companyController = companyController;
+        this.jobController = jobController;
+        this.employeeController = employeeController;
+        this.ihmUtilsGet = ihmUtilsGet;
+        this.ihmUtilsSet = ihmUtilsSet;
+        this.stylized3LText = stylized3LText;
+        this.stylized4LText = stylized4LText;
     }
 }

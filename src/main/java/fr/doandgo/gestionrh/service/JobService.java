@@ -14,13 +14,15 @@ public interface JobService {
     @Transactional
     void create(JobDto jobDto);
 
-    List<Job> getAll();
+    List<JobDto> getAll();
 
-    List<Job> getAllJobsByCompanyId(Integer companyId);
+    List<JobDto> getAllJobsByCompanyId(Integer companyId);
 
-    List<Job> getAllJobsWithoutContractByCompanyId(Integer companyId);
+    List<JobDto> getAllJobsWithoutContractByCompanyId(Integer companyId);
 
-    Job getById(Integer jobId);
+    JobDto getById(Integer jobId);
+
+    Job getJobEntityById(Integer jobId);
 
     @Transactional
     void update(JobDto jobDto);

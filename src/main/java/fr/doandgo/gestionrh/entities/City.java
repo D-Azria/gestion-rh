@@ -20,7 +20,7 @@ public class City extends AbstractBaseEntity{
 
     public Integer code;
 
-    @OneToMany
+    @OneToMany(mappedBy = "city")
     private List<Adresse> adresses;
 
 }

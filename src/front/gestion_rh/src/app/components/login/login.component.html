@@ -1,0 +1,23 @@
+<form #loginF="ngForm" >
+  <div class="container d-flex justify-content-center mt-5">
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <p>Email :</p>
+        <input (focus)="errorLogin=false" [(ngModel)]="unLoggedUser.email" name="email" type="email" placeholder="email@gestit.fr">
+        <p>Mot de passe :</p>
+        <input (focus)="errorLogin=false" [(ngModel)]="unLoggedUser.password" name="motDePasse" type="password" placeholder="Password">
+        <br>
+        <div class="container d-flex">
+          <input (click)="check()" [checked]="environment.check" name="check" type="checkbox" > Se souvenir de moi
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary" (click)="login()">Se connecter</button>
+        <p *ngIf="errorLogin" class="mt-2 text-bg-danger">username or password is incorrect</p>
+        <hr>
+        <a href="#">Nouveau ici ? Créer un compte.</a>
+        <br>
+        <a href="#">Mot passe oublié ?</a>
+      </div>
+    </div>
+  </div>
+</form>
